@@ -1,0 +1,22 @@
+(
+    db: Database(
+        protocol: "mysql", // postgres or mysql or sqite
+        user: "", // put your user to this database
+        password: "", // put password to theuser  
+        host: "", // put your database host
+        database: "", // put your database name
+    ),
+
+    srv: Server(
+        host: "[::1]",
+        port: 30010
+    ),
+
+    root: User(
+        name: "root",
+        email: "johny@example.com,
+        password: "",
+    ),
+
+    secret: "", // put yout secret here
+)

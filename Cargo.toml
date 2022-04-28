@@ -1,0 +1,29 @@
+[package]
+name = "subs"
+version = "0.1.0"
+edition = "2021"
+authors = ["firesz25 <olek.cz@outlook.com>"]
+license = "MIT OR Apache-2.0"
+
+[workspace]
+members = [".", "entity", "migration"]
+
+[dependencies]
+actix-files = "0.6.0"
+actix-web = "4.0.1"
+actix-multipart = "0.4.0"
+
+tracing = "0.1.34"
+tracing-appender = "0.2.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+once_cell = "1.10.0"
+ron = "0.7.0"
+serde = "1.0.136"
+
+sea-orm = { version = "0.7.1", features = ["sqlx-all", "runtime-actix-rustls", "debug-print"] }
+futures = "0.3.21"
+nanoid = "0.4.0"
+
+entity = { path = "entity" }
+migration = { path = "migration" }
