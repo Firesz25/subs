@@ -2,8 +2,6 @@
 
 Web application for sharing movie subtitles
 
-License
-
 ## License
 
 Licensed under either of
