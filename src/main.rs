@@ -1,7 +1,7 @@
 mod config;
 mod handlers;
 mod log;
-mod model;
+mod controler;
 mod setup;
 mod state;
 
@@ -27,6 +27,8 @@ async fn real_main() {
             .app_data(state.clone())
             .wrap(middleware::Logger::default())
             .configure(handlers::route_file)
+            .configure(handlers::route_sub)
+            .configure(handlers::route_user)
     })
     .bind(CFG.srv_url())
     .unwrap()
