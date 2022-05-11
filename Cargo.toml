@@ -28,3 +28,4 @@ nanoid = "0.4.0"
 entity = { path = "entity" }
 migration = { path = "migration" }
 tera = "1.15.0"
+thiserror = "1.0.31"

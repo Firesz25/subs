@@ -1,4 +1,5 @@
-use crate::state::AppState;
+use crate::error::Result;
+use crate::{error::Error, state::AppState};
 use actix_files::NamedFile;
 use actix_multipart::Multipart;
 use actix_web::{web, HttpRequest, HttpResponse};
@@ -18,28 +19,29 @@ async fn download(
     state: web::Data<AppState>,
     id: web::Query<i32>,
     req: HttpRequest,
-) -> HttpResponse {
+) -> Result<HttpResponse> {
     return match Sub::find_by_id(id.into_inner())
         .one(&state.conn)
         .await
         .unwrap()
     {
-        Some(sub) => NamedFile::open_async(sub.path)
+        Some(sub) => Ok(NamedFile::open_async(sub.path)
             .await
             .unwrap()
-            .into_response(&req),
-        None => HttpResponse::NotFound().body("Not Found"),
+            .into_response(&req)),
+        None => Err(Error::NotFound),
     };
 }
 
-async fn uploads(state: web::Data<AppState>, mut payload: Multipart) -> HttpResponse {
+async fn uploads(state: web::Data<AppState>, mut payload: Multipart) -> Result<HttpResponse> {
     while let Some(mut field) = payload.try_next().await.unwrap() {
         let cn_ds = field.content_disposition();
         let filename = cn_ds
             .get_filename()
             .map_or("".to_string(), |f| f.to_string());
         if filename == "".to_string() {
-            return HttpResponse::BadRequest().body("filename is empty");
+            // return HttpResponse::BadRequest().body("filename is empty");
+            return Err(Error::BadRequest("filename is empty".to_string()));
         }
 
         let mut f = String::new();
@@ -52,7 +54,8 @@ async fn uploads(state: web::Data<AppState>, mut payload: Multipart) -> HttpResp
         let details = CACHE.get(&filename);
 
         if details.is_none() {
-            return HttpResponse::BadRequest().body("descryption for file is empty");
+            // return HttpResponse::BadRequest().body("descryption for file is empty");
+            return Err(Error::BadRequest("descryption for file is empty".to_string()));
         }
 
         let details = details.unwrap();
@@ -70,7 +73,7 @@ async fn uploads(state: web::Data<AppState>, mut payload: Multipart) -> HttpResp
 
         CACHE.remove(&filename);
     }
-    HttpResponse::Ok().body("Uploaded")
+    Ok(HttpResponse::Ok().body("Uploaded"))
 }
 
 static CACHE: Lazy<MemDB> = Lazy::new(|| MemDB::new());
@@ -106,7 +109,7 @@ struct UploadsDetails {
     pub description: String,
 }
 
-async fn uploads_details(form: web::Form<UploadsDetails>) -> HttpResponse {
+async fn uploads_details(form: web::Form<UploadsDetails>) -> Result<HttpResponse> {
     let form = form.into_inner();
     CACHE.insert(
         form.title.clone(),
@@ -117,5 +120,5 @@ async fn uploads_details(form: web::Form<UploadsDetails>) -> HttpResponse {
         },
     );
 
-    HttpResponse::Ok().finish()
+    Ok(HttpResponse::Ok().finish())
 }
