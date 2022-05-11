@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{web, HttpResponse};
 use entity::prelude::*;
 use sea_orm::{ActiveModelTrait, Set};
 use serde::Deserialize;
@@ -17,9 +17,12 @@ async fn sign_up(state: web::Data<AppState>, form: web::Form<User>) -> HttpRespo
         email: Set(form.email),
         password: Set(form.password),
         ..Default::default()
-    }.insert(conn).await.unwrap();
+    }
+    .insert(conn)
+    .await
+    .unwrap();
     HttpResponse::Ok().json(())
-}  
+}
 
 #[derive(Debug, Deserialize)]
 struct User {
@@ -27,4 +30,3 @@ struct User {
     email: String,
     password: String,
 }
-    

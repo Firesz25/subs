@@ -1,7 +1,7 @@
 mod config;
+mod controler;
 mod handlers;
 mod log;
-mod controler;
 mod setup;
 mod state;
 

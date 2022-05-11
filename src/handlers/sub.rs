@@ -1,6 +1,6 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{web, HttpResponse};
 use entity::prelude::*;
-use sea_orm::{EntityTrait, QueryOrder, PaginatorTrait};
+use sea_orm::{EntityTrait, PaginatorTrait, QueryOrder};
 use serde::Deserialize;
 
 use crate::state::AppState;
@@ -17,15 +17,16 @@ struct Params {
     subs_per_page: Option<usize>,
 }
 
-
-async fn list(state: web::Data<AppState>, query: web::Query<Params>) -> HttpResponse{
+async fn list(state: web::Data<AppState>, query: web::Query<Params>) -> HttpResponse {
     let conn = &state.conn;
     let query = query.into_inner();
     let page = query.page.unwrap_or(1);
 
     let subs_per_page = query.subs_per_page.unwrap_or(10);
-    let paginator = Sub::find().order_by_asc(SubColumn::CreateAt).paginate(conn, subs_per_page);
-    let subs = paginator.fetch_page(page -1).await.ok().unwrap();
+    let paginator = Sub::find()
+        .order_by_asc(SubColumn::CreateAt)
+        .paginate(conn, subs_per_page);
+    let subs = paginator.fetch_page(page - 1).await.ok().unwrap();
     HttpResponse::Ok().json(subs)
 }
 
