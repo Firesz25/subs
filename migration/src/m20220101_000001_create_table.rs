@@ -53,14 +53,14 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let stmts = vec![seaorm_drop_stmt(User), seaorm_drop_stmt(Sub)];
 
-        for stmt in stmts {
-            manager.drop_table(stmt.to_owned()).await?;
-        }
-
         manager
             .drop_index(Index::drop().table(Sub).to_owned())
             .await
             .unwrap();
+
+        for stmt in stmts {
+            manager.drop_table(stmt.to_owned()).await?;
+        }
 
         Ok(())
     }

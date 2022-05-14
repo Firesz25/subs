@@ -1,6 +1,5 @@
-use crate::error::{Error, Result};
 use crate::state::AppState;
-use actix_web::{web, HttpResponse};
+use actix_web::{web, HttpResponse, Responder};
 use entity::prelude::*;
 use sea_orm::{EntityTrait, PaginatorTrait, QueryOrder};
 use serde::Deserialize;
@@ -17,7 +16,7 @@ struct Params {
     subs_per_page: Option<usize>,
 }
 
-async fn list(state: web::Data<AppState>, query: web::Query<Params>) -> Result<HttpResponse> {
+async fn list(state: web::Data<AppState>, query: web::Query<Params>) -> HttpResponse {
     let conn = &state.conn;
     let query = query.into_inner();
     let page = query.page.unwrap_or(1);
@@ -27,19 +26,19 @@ async fn list(state: web::Data<AppState>, query: web::Query<Params>) -> Result<H
         .order_by_asc(SubColumn::CreateAt)
         .paginate(conn, subs_per_page);
     let subs = paginator.fetch_page(page - 1).await.ok().unwrap();
-    Ok(HttpResponse::Ok().json(subs))
+    HttpResponse::Ok().json(subs)
 }
 
-async fn get(state: web::Data<AppState>, id: web::Path<i32>) -> Result<HttpResponse> {
+async fn get(state: web::Data<AppState>, id: web::Path<i32>) -> impl Responder {
     let conn = &state.conn;
     let sub = Sub::find_by_id(id.into_inner()).one(conn).await.unwrap();
     match sub {
-        Some(sub) => Ok(HttpResponse::Ok().json(sub)),
-        None => Err(Error::NotFound),
+        Some(sub) => HttpResponse::Ok().json(sub),
+        None => HttpResponse::NotFound().finish(),
     }
 }
 
-async fn search(state: web::Data<AppState>, form: web::Form<Search>) -> Result<HttpResponse> {
+async fn search(state: web::Data<AppState>, form: web::Form<Search>) -> HttpResponse {
     let conn = &state.conn;
     let form = form.into_inner();
     let sub = match form.language {
@@ -48,8 +47,8 @@ async fn search(state: web::Data<AppState>, form: web::Form<Search>) -> Result<H
         Language::English => Sub::find_by_english(&form.title).one(conn).await.unwrap(),
     };
     match sub {
-        Some(sub) => Ok(HttpResponse::Ok().json(sub)),
-        None => Err(Error::NotFound),
+        Some(sub) => HttpResponse::Ok().json(sub),
+        None => HttpResponse::NotFound().finish(),
     }
 }
 
@@ -61,8 +60,8 @@ struct Search {
 }
 
 impl std::str::FromStr for Language {
-    type Err = Error;
-    fn from_str(s: &str) -> Result<Self> {
+    type Err = Box<dyn std::error::Error>;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "orginal" => Ok(Language::Orginal),
             "english" => Ok(Language::English),

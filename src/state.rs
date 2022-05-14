@@ -9,7 +9,7 @@ pub struct AppState {
 impl AppState {
     pub fn new(conn: DbConn) -> Self {
         let mut tera = Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*")).unwrap();
-        tera.autoescape_on(vec![".html.tera"]);
+        tera.autoescape_on(vec![".html.tera", ".tera"]);
         Self { conn, tera }
     }
 }
