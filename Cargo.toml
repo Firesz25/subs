@@ -21,11 +21,10 @@ once_cell = "1.10.0"
 ron = "0.7.0"
 serde = "1.0.137"
 
-sea-orm = { version = "0.8.0", features = ["sqlx-all", "runtime-actix-rustls", "debug-print"] }
+sea-orm = { version = "0.8.0", features = ["sqlx-mysql", "sqlx-sqlite", "runtime-actix-rustls", "debug-print"] }
 futures = "0.3.21"
 nanoid = "0.4.0"
 
 entity = { path = "entity" }
 migration = { path = "migration" }
 tera = "1.15.0"
-thiserror = "1.0.31"

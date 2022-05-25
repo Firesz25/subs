@@ -2749,7 +2749,6 @@ dependencies = [
  "sea-orm",
  "serde",
  "tera",
- "thiserror",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",

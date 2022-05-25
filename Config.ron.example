@@ -1,6 +1,6 @@
 (
     db: Database(
-        protocol: "mysql", // postgres or mysql or sqite
+        protocol: "mysql", // mysql or sqite
         user: "", // put your user to this database
         password: "", // put password to theuser  
         host: "", // put your database host
