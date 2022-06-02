@@ -46,6 +46,7 @@ pub fn log() -> Result<()> {
     let logfile = tracing_appender::rolling::daily("./logs", "subs");
     tracing_subscriber::fmt()
         .with_writer(appender.and(logfile).and(stdout))
-        .try_init().unwrap();
+        .try_init()
+        .unwrap();
     Ok(())
 }

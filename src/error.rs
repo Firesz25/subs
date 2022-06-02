@@ -1,15 +1,20 @@
-use actix_web::{HttpResponse, HttpRequest, ResponseError, http::StatusCode, web};
-use tera::Context;
 use crate::state::AppState;
+use actix_web::{http::StatusCode, web, HttpRequest, HttpResponse, ResponseError};
 use sea_orm::DbErr;
-use thiserror::Error;
 use std::error::Error as StdError;
+use tera::Context;
+use thiserror::Error;
 use tracing::error;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub async fn e404(req: HttpRequest, state: web::Data<AppState>) -> HttpResponse {
-    e(state.get_ref(), 404, "Page Not Found", &format!("Page {} Not Found", req.path()))
+    e(
+        state.get_ref(),
+        404,
+        "Page Not Found",
+        &format!("Page {} Not Found", req.path()),
+    )
 }
 
 pub fn e(state: &AppState, status_code: u16, title: &str, message: &str) -> HttpResponse {
@@ -25,18 +30,34 @@ pub fn e(state: &AppState, status_code: u16, title: &str, message: &str) -> Http
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Database {0}")]
-    DB(#[from] #[source] DbErr),
+    DB(
+        #[from]
+        #[source]
+        DbErr,
+    ),
     #[error("Tera: {0}")]
-    Tera(#[from] #[source] tera::Error),
+    Tera(
+        #[from]
+        #[source]
+        tera::Error,
+    ),
     #[error("IO: {0}")]
-    IO(#[from] #[source] std::io::Error),
+    IO(
+        #[from]
+        #[source]
+        std::io::Error,
+    ),
     #[error("Custom: {0}")]
-    Custom(#[from] #[source] Box<dyn StdError + Send + Sync>)
+    Custom(
+        #[from]
+        #[source]
+        Box<dyn StdError + Send + Sync>,
+    ),
 }
 
 impl ResponseError for Error {
     fn error_response(&self) -> HttpResponse {
-        error!("{}", self.to_string()); 
+        error!("{}", self.to_string());
         HttpResponse::build(self.status_code()).body(())
     }
 }
