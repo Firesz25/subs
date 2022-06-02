@@ -50,12 +50,16 @@ async fn uploads(state: web::Data<AppState>, mut payload: Multipart) -> HttpResp
             f.push_str(std::str::from_utf8(&chunk).unwrap());
         }
 
-        let details = CACHE.get(&filename);
+        let details = CACHE.get(&filename.clone());
 
         if details.is_none() {
             // return HttpResponse::BadRequest().body("descryption for file is empty");
             return HttpResponse::BadRequest().finish();
         }
+
+        let path = filename.clone();
+
+        web::block(move || std::fs::write(format!("./tmp/{}", path), f)).await.unwrap().unwrap();
 
         let details = details.unwrap();
 

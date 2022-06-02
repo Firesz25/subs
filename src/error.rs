@@ -8,17 +8,17 @@ use tracing::error;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub async fn e404(req: HttpRequest, state: web::Data<AppState>) -> HttpResponse {
+pub async fn e404(req: HttpRequest) -> HttpResponse {
+    let tera = req.app_data::<web::Data<AppState>>().unwrap().tera.clone();
     e(
-        state.get_ref(),
+        tera,
         404,
         "Page Not Found",
         &format!("Page {} Not Found", req.path()),
     )
 }
 
-pub fn e(state: &AppState, status_code: u16, title: &str, message: &str) -> HttpResponse {
-    let tera = &state.tera;
+pub fn e(tera: tera::Tera, status_code: u16, title: &str, message: &str) -> HttpResponse {
     let mut ctx = Context::new();
     ctx.insert("title", title);
     ctx.insert("status_code", &status_code);
