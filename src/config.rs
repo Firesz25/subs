@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::fs;
 
-pub static CFG: Lazy<Config> = Lazy::new(|| Config::new());
+pub static CFG: Lazy<Config> = Lazy::new(Config::new);
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
@@ -18,7 +18,7 @@ impl Config {
     }
 
     pub fn db_url(&self) -> String {
-        if self.db.protocol == "sqlite" {
+        if self.db.protocol.eq("sqlite") {
             fs::File::create(format!("{}.db", self.db.database)).unwrap();
             format!("sqlite://{}.db", self.db.database)
         } else if self.db.port.is_some() {

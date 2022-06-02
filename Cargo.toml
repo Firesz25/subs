@@ -24,6 +24,7 @@ serde = "1.0.137"
 sea-orm = { version = "0.8.0", features = ["sqlx-mysql", "sqlx-sqlite", "runtime-actix-rustls", "debug-print"] }
 futures = "0.3.21"
 nanoid = "0.4.0"
+thiserror = "1.0.31"
 
 entity = { path = "entity" }
 migration = { path = "migration" }

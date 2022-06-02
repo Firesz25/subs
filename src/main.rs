@@ -15,9 +15,9 @@ fn main() {
 }
 
 async fn real_main() {
-    setup::log();
+    setup::log().unwrap();
     let conn = sea_orm::Database::connect(CFG.db_url()).await.unwrap();
-    setup::database(&conn).await;
+    setup::database(&conn).await.unwrap();
     let state = web::Data::new(state::AppState::new(conn));
     HttpServer::new(move || {
         App::new()

@@ -38,7 +38,7 @@ async fn uploads(state: web::Data<AppState>, mut payload: Multipart) -> HttpResp
         let filename = cn_ds
             .get_filename()
             .map_or("".to_string(), |f| f.to_string());
-        if filename == "".to_string() {
+        if filename == String::new() {
             // return HttpResponse::BadRequest().body("filename is empty");
             return HttpResponse::BadRequest().finish();
         }
@@ -75,7 +75,7 @@ async fn uploads(state: web::Data<AppState>, mut payload: Multipart) -> HttpResp
     HttpResponse::Ok().body("Uploaded")
 }
 
-static CACHE: Lazy<MemDB> = Lazy::new(|| MemDB::new());
+static CACHE: Lazy<MemDB> = Lazy::new(MemDB::new);
 
 struct MemDB {
     data: Mutex<HashMap<String, UploadsDetails>>,

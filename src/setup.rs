@@ -1,10 +1,10 @@
-use crate::config::CFG;
+use crate::{config::CFG, error::Result};
 use entity::prelude::{Sub, SubActiveModel, User, UserActiveModel};
 use migration::MigratorTrait;
 use sea_orm::{ActiveModelTrait, DbConn, Set};
 use tracing_subscriber::fmt::writer::MakeWriterExt;
-pub async fn database(conn: &DbConn) {
-    migration::Migrator::up(&conn, None).await.unwrap();
+pub async fn database(conn: &DbConn) -> Result<()> {
+    migration::Migrator::up(conn, None).await.unwrap();
     let user = User::find_by_email(&CFG.root.email.clone())
         .one(conn)
         .await
@@ -35,9 +35,10 @@ pub async fn database(conn: &DbConn) {
         .await
         .unwrap();
     }
+    Ok(())
 }
 
-pub fn log() {
+pub fn log() -> Result<()> {
     let logfile = tracing_appender::rolling::daily("./logs", "subs");
     let (appender, _guard) = tracing_appender::non_blocking(logfile);
     let appender = appender.with_max_level(tracing::Level::INFO);
@@ -45,5 +46,6 @@ pub fn log() {
     let logfile = tracing_appender::rolling::daily("./logs", "subs");
     tracing_subscriber::fmt()
         .with_writer(appender.and(logfile).and(stdout))
-        .init();
+        .try_init().unwrap();
+    Ok(())
 }
